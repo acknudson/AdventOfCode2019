@@ -20,6 +20,22 @@ import math
 def fuel_required(mass):
 	return int(math.floor(mass/3)) - 2
 
+
+#A module of mass 14 requires 2 fuel. This fuel requires no further fuel (2 divided by 3 and rounded down is 0, which would call for a negative fuel), so the total fuel required is still just 2.
+#At first, a module of mass 1969 requires 654 fuel. Then, this fuel requires 216 more fuel (654 / 3 - 2). 216 then requires 70 more fuel, which requires 21 fuel, which requires 5 fuel, which requires no further fuel. So, the total fuel required for a module of mass 1969 is 654 + 216 + 70 + 21 + 5 = 966.
+#The fuel required by a module of mass 100756 and its fuel is: 33583 + 11192 + 3728 + 1240 + 411 + 135 + 43 + 12 + 2 = 50346.
+def fuel_for_fuel(fuel):
+	all_fuel = 0
+	fr = fuel_required(fuel)
+	while fr > 0:
+		all_fuel += fr
+		fr = fuel_required(fr)
+	return all_fuel
+
+# print fuel_for_fuel(2)
+# print fuel_for_fuel(654), "correct: 312"
+# print fuel_for_fuel(33583), "correct: 16763"
+
 # Initial tests
 # print fuel_required(12), "2"
 # print fuel_required(14), "2"
@@ -32,7 +48,15 @@ all_modules = [79620,58052,119910,138477,139102,78373,51937,63751,100937,56664,1
 def count_up_fuel_required(all_modules):
 	all_fuel = 0
 	for mass in all_modules:
-		all_fuel += fuel_required(mass)
+		fr = fuel_required(mass)
+		extra = fuel_for_fuel(fr)
+		all_fuel += fr
+		all_fuel += extra
 	return all_fuel
 
-print count_up_fuel_required(all_modules)
+print count_up_fuel_required(all_modules) # returned 3412094 in part 1, 5115267 in part 2
+
+
+
+
+
