@@ -15,6 +15,22 @@ def has_double_digit(number):
 
 # print has_double_digit(1237789)
 
+def has_a_double(number):
+	stringify = str(number)
+	counts = {}
+	for i in range(1, len(stringify)):
+		if stringify[i] == stringify[i-1]:
+			counts[stringify[i]] = counts.get(stringify[i], 0) + 2
+
+	for i in counts.keys():
+		if counts[i] == 2:
+			return True
+
+	return False
+
+# print has_a_double(111122)
+# print has_a_double(123444)
+
 def digits_do_not_decrease(number):
 	stringify = str(number)
 	for i in range(1, len(stringify)):
@@ -30,7 +46,8 @@ def count_passwords(input_lower, input_upper):
 	for x in range(input_lower, input_upper):
 		if digits_do_not_decrease(x):
 			if has_double_digit(x):
-				passwords.extend([x])
+				if has_a_double(x):
+					passwords.extend([x])
 	return len(passwords)
 
 print count_passwords(171309, 643603)
