@@ -14,17 +14,12 @@ def intcode(original):
 	input_int = 1
 	input = original[:]
 	while i < (len(input)-1):
-		# print input[0:i+10]
 		string_opcode = str(input[i])
-		# print "opcode", string_opcode
 		opcode = input[i] % 10
 
 		if opcode == 99:
 			break
 		elif opcode == 3:
-			# print "input"
-			# print "i", i
-			# print "input val, num1", input_int
 			input[input[i+1]] = input_int
 			i += 2
 			continue
@@ -41,52 +36,23 @@ def intcode(original):
 
 
 		if input[i] >= 100 and string_opcode[-3] is '1':
-			# print "no1 immediate", string_opcode[-3]
 			number1 = input[i+1]
 		else:
-			# print "no1 position"
-			# print '\t', i+1, input[i+1], input[input[i+1]]
 			number1 = input[input[i+1]]
 
 		if input[i] >= 1000 and string_opcode[-4] is '1':
-			# print "no2 immediate", string_opcode[-4]
 			number2 = input[i+2]
 		else:
-			# print "no2 position"
 			number2 = input[input[i+2]]
 
-		# if len(string_opcode) > 1:
-		# 	# print "enumerate", string_opcode[:-2]
-		# 	for index, num in enumerate(reversed(string_opcode[:-2])):
-		# 		if index == 0:
-		# 			if num == "1" or num == 1:
-		# 				number1 = input[i+1]
-		# 		if index == 1:
-		# 			if num == "1" or num == 1:
-		# 				number2 = input[i+2]
-		# else:
-		# 	if opcode < 3:	
-		# 		number2 = input[input[i+2]]
-		# 		number1 = input[input[i+1]]
-
 		if opcode == 1:
-			# print "add"
-			# print "num1, num2", number1, number2
-			# print "dest", dest
 			input[dest] = number2 + number1
 			i += 4
 		elif opcode == 2:
-			# print "multiply"
-			# print "num1, num2", number1, number2
-			# print "dest", dest
 			input[dest] = number1 * number2
 			i += 4
 		else:
 			print "opcode invalid", opcode
-			# break
-		
-	# raise "there was an issue, program did not abort"
-	# return input, input_int
-	# return input
+			break
 
 print intcode(solution)
