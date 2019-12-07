@@ -11,16 +11,10 @@ def intcode(original, phase_int, input_int, i):
 	while i < (len(input)-1):
 		string_opcode = str(input[i])
 		opcode = input[i] % 100
-		# print "opcode", opcode
-		# print input[i:]
 
 		if opcode == 99:
-			# print "opcode 99"
 			return None
 		elif opcode == 3:
-			# print "opcode 3"
-			# print "phase_int", phase_int
-			# print "i", i
 			if i == 0:
 				input[input[i+1]] = phase_int
 			else:
@@ -29,15 +23,14 @@ def intcode(original, phase_int, input_int, i):
 			continue
 		elif opcode == 4:
 			if input[i] >= 1000 and string_opcode[-4] is '1':
-				return input[i+1], i+2, input
+				return input[i+1], i+2, input # saves the program's state to come back later
 			else:
-				return input[input[i+1]], i+2, input
+				return input[input[i+1]], i+2, input # saves the program's state to come back later
 			i += 2
 			continue
 		
 		if i < (len(input)-4):			
 			dest = input[i+3] # destinations are never immediate
-
 
 		# Determine instruction mode
 		if input[i] >= 100 and string_opcode[-3] is '1':
@@ -83,37 +76,25 @@ def intcode(original, phase_int, input_int, i):
 			print "opcode invalid", opcode
 			break
 
-# print intcode(solution)
+def amplifier_sequence(solution, phase):
+	a,b,c,d,e = phase
+	a_out, a_i, a_input = intcode(solution, a, 0, 0)
+	b_out, b_i, b_input = intcode(solution, b, a_out, 0)
+	c_out, c_i, c_input = intcode(solution, c, b_out, 0)
+	d_out, d_i, d_input = intcode(solution, d, c_out, 0)
+	e_out, e_i, e_input = intcode(solution, e, d_out, 0)
 
-def amplifier_sequence(solution, a,b,c,d,e):
-	# print "a1"
-	a1, ai, a_input = intcode(solution, a, 0, 0)
-	# print "b1"
-	b1, bi, b_input = intcode(solution, b, a1, 0)
-	# print "c1"
-	c1, ci, c_input = intcode(solution, c, b1, 0)
-	# print "d1"
-	d1, di, d_input = intcode(solution, d, c1, 0)
-	# print "e1"
-	e1, ei, e_input = intcode(solution, e, d1, 0)
-
-	last_e1 = None
-	i = 1
-	while e1:
-		i += 1
+	last_e_out = None
+	while True:
 		try:
-			a1, ai, a_input = intcode(a_input, None, e1, ai)
-			# print "b", i
-			b1, bi, b_input = intcode(b_input, None, a1, bi)
-			# print "c", i
-			c1, ci, c_input = intcode(c_input, None, b1, ci)
-			# print "d", i
-			d1, di, d_input = intcode(d_input, None, c1, di)
-			# print "e", i
-			e1, ei, e_input = intcode(e_input, None, d1, ei)
-			last_e1 = e1
+			a_out, a_i, a_input = intcode(a_input, None, e_out, a_i)
+			b_out, b_i, b_input = intcode(b_input, None, a_out, b_i)
+			c_out, c_i, c_input = intcode(c_input, None, b_out, c_i)
+			d_out, d_i, d_input = intcode(d_input, None, c_out, d_i)
+			e_out, e_i, e_input = intcode(e_input, None, d_out, e_i)
+			last_e_out = e_out # the last good e output value we have
 		except:
-			return last_e1
+			return last_e_out
 
 
 # print amplifier_sequence(solution, 9,7,8,5,6)
@@ -123,8 +104,7 @@ def max_perms(solution):
 	max_thrust = 0
 
 	for phase in phase_perms:
-		a,b,c,d,e = phase
-		val = amplifier_sequence(solution, a,b,c,d,e)
+		val = amplifier_sequence(solution, phase)
 		if val > max_thrust:
 			max_thrust = val
 	return max_thrust
