@@ -8,35 +8,45 @@ solution = [1102,34463338,34463338,63,1007,63,34463338,63,1005,63,53,1101,0,3,10
 
 from itertools import permutations
 
-def intcode(original, phase_int, input_int, i):
+def intcode(original, input_int, i):
 	input = original[:]
 	input.extend([0]*100000000)
 
 	relative_base = 0
 	while i < (len(input)-1):
+		print '\n'
+		print input[i:i+5]
 		string_opcode = str(input[i])
 		opcode = input[i] % 100
 
 		# Determine instruction mode
 		if input[i] >= 100:
-			if string_opcode[-3] is '1':
+			if string_opcode[-3] == '1':
+				# print "opcode 1 immediate"
 				number1 = input[i+1]
-			elif string_opcode[-3] is '2':
-				number1 = input[input[i+1+relative_base]]
+			elif string_opcode[-3] == '2':
+				# print "opcode 2 relative"
+				number1 = input[input[i+1]+relative_base]
+			elif string_opcode[-3] == '0':
+				# print "opcode1 position"
+				number1 = input[input[i+1]]
 		else:
+			# print "opcode1 position"
 			number1 = input[input[i+1]]
+		# print "input 63", input[63]
 
 		if opcode == 99:
 			return None
 		elif opcode == 3:
-			# if i == 0:
-			# 	input[input[i+1]] = phase_int
-			# else:
-			number1 = input_int
+			print "rel offset start", input[input[i+1]+relative_base]
+			pos = input[i+1]
+			if input[i] >= 100 and string_opcode[-3] == '2':
+				pos = input[i+1]+relative_base
+			input[pos] = input_int
+			print "rel offset end", input[input[i+1]+relative_base]
 			i += 2
 			continue
-
-		if opcode == 4:
+		elif opcode == 4:
 			print number1
 			i += 2
 			continue
@@ -45,16 +55,17 @@ def intcode(original, phase_int, input_int, i):
 			i += 2
 			continue
 
-
 		if input[i] >= 1000:
-			if string_opcode[-4] is '1':
+			if string_opcode[-4] == '1':
 				number2 = input[i+2]
-			elif string_opcode[-4] is '2':
-				number2 = input[input[i+2+relative_base]]
+			elif string_opcode[-4] == '2':
+				number2 = input[input[i+2]+relative_base]
+			elif string_opcode[-4] == '0':
+				number2 = input[input[i+2]]
 		else:
 			number2 = input[input[i+2]]
 
-		if input[i] >= 10000 and string_opcode[-5] is '2':
+		if input[i] >= 10000 and string_opcode[-5] == '2':
 				dest = input[i+3]+relative_base
 		else:
 			if i < (len(input)-4):			
@@ -69,9 +80,12 @@ def intcode(original, phase_int, input_int, i):
 			# print "number1 * number2", number1, number2
 			# print "dest", dest
 			input[dest] = number1 * number2
-			print input[dest]
+			# print "input dest", input[dest]
+			# print input[dest]
 			i += 4
 		elif opcode == 5:
+			# print "num1", number1
+			# print "number2", number2
 			if number1 != 0:
 				i = number2
 			else:
@@ -86,6 +100,7 @@ def intcode(original, phase_int, input_int, i):
 				input[dest] = 1
 			else:
 				input[dest] = 0
+			# print "dest, val", dest, input[dest]
 			i += 4
 		elif opcode == 8:
 			if number1 == number2:
@@ -98,39 +113,4 @@ def intcode(original, phase_int, input_int, i):
 			print "opcode invalid", opcode
 			break
 
-print intcode(solution, 0, 1, 0)
-
-def amplifier_sequence(solution, phase):
-	a,b,c,d,e = phase
-	a_out, a_i, a_input = intcode(solution, a, 0, 0)
-	b_out, b_i, b_input = intcode(solution, b, a_out, 0)
-	c_out, c_i, c_input = intcode(solution, c, b_out, 0)
-	d_out, d_i, d_input = intcode(solution, d, c_out, 0)
-	e_out, e_i, e_input = intcode(solution, e, d_out, 0)
-
-	last_e_out = None
-	while True:
-		try:
-			a_out, a_i, a_input = intcode(a_input, None, e_out, a_i)
-			b_out, b_i, b_input = intcode(b_input, None, a_out, b_i)
-			c_out, c_i, c_input = intcode(c_input, None, b_out, c_i)
-			d_out, d_i, d_input = intcode(d_input, None, c_out, d_i)
-			e_out, e_i, e_input = intcode(e_input, None, d_out, e_i)
-			last_e_out = e_out # the last good e output value we have
-		except:
-			return last_e_out
-
-
-# print amplifier_sequence(solution, 9,7,8,5,6)
-
-def max_perms(solution):
-	phase_perms = list(permutations(range(5, 10))) 
-	max_thrust = 0
-
-	for phase in phase_perms:
-		val = amplifier_sequence(solution, phase)
-		if val > max_thrust:
-			max_thrust = val
-	return max_thrust
-
-# print max_perms(solution)
+print intcode(solution, 1, 0)
